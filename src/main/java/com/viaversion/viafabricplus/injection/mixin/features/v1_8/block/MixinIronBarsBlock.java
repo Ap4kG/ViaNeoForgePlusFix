@@ -21,10 +21,6 @@
 
 package com.viaversion.viafabricplus.injection.mixin.features.v1_8.block;
 
-import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
-import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
-import com.llamalad7.mixinextras.sugar.Share;
-import com.llamalad7.mixinextras.sugar.ref.LocalIntRef;
 import com.viaversion.viafabricplus.ViaFabricPlus;
 import com.viaversion.viaversion.api.protocol.version.ProtocolVersion;
 import net.minecraft.world.item.context.BlockPlaceContext;
@@ -43,19 +39,12 @@ public abstract class MixinIronBarsBlock extends CrossCollisionBlock {
         super(radius1, radius2, boundingHeight1, boundingHeight2, collisionHeight, settings);
     }
 
-    @WrapOperation(method = "getStateForPlacement", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/level/block/IronBarsBlock;attachsTo(Lnet/minecraft/world/level/block/state/BlockState;Z)Z"))
-    private boolean countConnections(IronBarsBlock instance, BlockState state, boolean faceSolid, Operation<Boolean> original, @Share("count") LocalIntRef countRef) {
-        final boolean connectsTo = original.call(instance, state, faceSolid);
-        if (connectsTo) {
-            countRef.set(countRef.get() + 1);
-        }
-        return connectsTo;
-    }
-
     @Inject(method = "getStateForPlacement", at = @At("RETURN"), cancellable = true)
-    private void changePlacementState(BlockPlaceContext context, CallbackInfoReturnable<BlockState> cir, @Share("count") LocalIntRef countRef) {
-        if (ViaFabricPlus.api().targetVersion().olderThanOrEqualTo(ProtocolVersion.v1_8) && countRef.get() == 0) {
-            cir.setReturnValue(cir.getReturnValue().setValue(NORTH, true).setValue(SOUTH, true).setValue(WEST, true).setValue(EAST, true));
+    private void changePlacementState(BlockPlaceContext context, CallbackInfoReturnable<BlockState> cir) {
+        final BlockState state = cir.getReturnValue();
+        if (ViaFabricPlus.api().targetVersion().olderThanOrEqualTo(ProtocolVersion.v1_8)
+            && !state.getValue(NORTH) && !state.getValue(SOUTH) && !state.getValue(WEST) && !state.getValue(EAST)) {
+            cir.setReturnValue(state.setValue(NORTH, true).setValue(SOUTH, true).setValue(WEST, true).setValue(EAST, true));
         }
     }
 

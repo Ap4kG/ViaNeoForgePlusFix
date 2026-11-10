@@ -38,7 +38,13 @@ public abstract class MixinBlockTransformer {
         return false;
     }
 
-    @Redirect(method = "transformBlock", at = @At(value = "INVOKE", target = "Lnet/minecraft/core/component/BlockTransformer;playerHasBlockingItemUseIntent(Lnet/minecraft/world/item/context/UseOnContext;)Z"))
+    @Redirect(
+        method = {
+            "transformBlock(Lnet/minecraft/world/item/context/UseOnContext;)Lnet/minecraft/world/InteractionResult;",
+            "transformBlock(Lnet/minecraft/world/item/context/UseOnContext;Lnet/minecraft/core/Holder;)Lnet/minecraft/world/InteractionResult;"
+        },
+        at = @At(value = "INVOKE", target = "Lnet/minecraft/core/component/BlockTransformer;playerHasBlockingItemUseIntent(Lnet/minecraft/world/item/context/UseOnContext;)Z")
+    )
     private boolean neverCancelStripAttempt(UseOnContext context) {
         return ViaFabricPlus.api().targetVersion().newerThan(ProtocolVersion.v1_20_5) && playerHasBlockingItemUseIntent(context);
     }

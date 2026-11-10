@@ -53,7 +53,9 @@ public abstract class MixinBlockTransformer {
         }
     }
 
-    @WrapWithCondition(method = "transformBlock", at = @At(value = "INVOKE",
+    @WrapWithCondition(
+        method = "transformBlock(Lnet/minecraft/world/item/context/UseOnContext;Lnet/minecraft/core/Holder;)Lnet/minecraft/world/InteractionResult;",
+        at = @At(value = "INVOKE",
         target = "Lnet/minecraft/world/level/Level;playSound(Lnet/minecraft/world/entity/Entity;Lnet/minecraft/core/BlockPos;Lnet/minecraft/sounds/SoundEvent;Lnet/minecraft/sounds/SoundSource;FF)V"))
     private boolean disableItemPlaceSounds(Level instance, Entity except, BlockPos pos, SoundEvent sound, SoundSource source, float volume, float pitch) {
         return ViaFabricPlus.api().targetVersion().newerThan(ProtocolVersion.v1_8);
